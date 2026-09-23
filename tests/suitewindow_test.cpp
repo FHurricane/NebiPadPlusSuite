@@ -55,7 +55,7 @@ static bool hasVisiblePixels(const QIcon &icon)
     return false;
 }
 
-int main(int argc, char **argv)
+static int runSuiteWindowTest(int argc, char **argv)
 {
     QApplication app(argc, argv);
     for (auto mode : {SuiteMode::MindNet, SuiteMode::Impagination, SuiteMode::Math}) {
@@ -977,4 +977,12 @@ int main(int argc, char **argv)
             editor->document()->setModified(false);
     }
     return 0;
+}
+
+int main(int argc, char **argv)
+{
+    const int result = runSuiteWindowTest(argc, argv);
+    if (result != 0)
+        qCritical() << "suitewindow_test failed at check" << result;
+    return result;
 }
