@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="500" viewBox="0 0 900 500">
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#261936"/>
+      <stop offset="0.55" stop-color="#482a58"/>
+      <stop offset="1" stop-color="#21162e"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8954aa"/>
+      <stop offset="1" stop-color="#593570"/>
+    </linearGradient>
+    <linearGradient id="mark" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#84f1de"/>
+      <stop offset="1" stop-color="#56a7f6"/>
+    </linearGradient>
+    <linearGradient id="rule" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#61d6c4"/>
+      <stop offset="1" stop-color="#4d82e6"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="1" y="1" width="898" height="498" rx="28" fill="url(#background)" stroke="#9d69ae" stroke-width="2"/>
+  <path d="M1 366 C170 280 270 425 445 335 S740 270 899 349 L899 472 Q899 499 872 499 L28 499 Q1 499 1 472 Z" fill="#693a79" opacity="0.28"/>
+  <path d="M454 1 L899 1 L899 204 C750 177 654 119 454 1Z" fill="#bf83c8" opacity="0.09"/>
+
+  <rect x="68" y="82" width="304" height="334" rx="34" fill="url(#panel)" opacity="0.36"/>
+  <rect x="84" y="98" width="272" height="302" rx="26" fill="#352044" stroke="#9b70b0" stroke-width="2"/>
+  <path d="M139 147 H268 L315 194 V345 Q315 358 302 358 H139 Q126 358 126 345 V160 Q126 147 139 147Z" fill="#ecf7ff"/>
+  <path d="M268 147 V184 Q268 194 278 194 H315Z" fill="#b7d6ef"/>
+  <path d="M165 305 V204 H185 L240 274 V204 H261 V305 H241 L186 235 V305Z" fill="url(#mark)"/>
+  <rect x="164" y="324" width="101" height="6" rx="3" fill="#c0d8e8"/>
+  <rect x="273" y="324" width="21" height="6" rx="3" fill="#7ddacc"/>
+  <path d="M298 250 h27 M311.5 236.5 v27" stroke="#8cebd8" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="107" cy="123" r="4" fill="#77dccb"/>
+  <circle cx="123" cy="123" r="4" fill="#5c96e8"/>
+
+  <text x="422" y="204" fill="#f3f8ff" font-family="Avenir Next, Inter, Segoe UI, Arial, sans-serif" font-size="69" font-weight="700" letter-spacing="-3">NebiPad</text>
+  <text x="700" y="204" fill="#76e3d5" font-family="Avenir Next, Inter, Segoe UI, Arial, sans-serif" font-size="70" font-weight="700">+</text>
+  <rect x="425" y="229" width="86" height="5" rx="2.5" fill="url(#rule)"/>
+  <text x="425" y="282" fill="#d6e9fa" font-family="Avenir Next, Inter, Segoe UI, Arial, sans-serif" font-size="29" font-weight="600">NebiPad+ Math</text>
+  <text x="426" y="329" fill="#82a4c6" font-family="Avenir Next, Inter, Segoe UI, Arial, sans-serif" font-size="15" letter-spacing="2">SCRIVI  ·  CREA  ·  ESPLORA</text>
+  <path d="M425 376 H819" stroke="#4b759f" opacity="0.55"/>
+  <text x="425" y="405" fill="#7094b7" font-family="Avenir Next, Inter, Segoe UI, Arial, sans-serif" font-size="13">NEBIPAD+  /  MATH</text>
+  <text x="42" y="466" fill="#b8cee5" font-family="Avenir Next, Inter, Segoe UI, Arial, sans-serif" font-size="14" font-weight="500">Developer: Costa Fabio Copyright 2026</text>
+</svg>

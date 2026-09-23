@@ -1,0 +1,14 @@
+<RCC>
+  <qresource prefix="/brand">
+    <file alias="splash.svg">nebipad-splash.svg</file>
+    <file alias="splash-mindnet.svg">nebipad-splash-mindnet.svg</file>
+    <file alias="splash-impagination.svg">nebipad-splash-impagination.svg</file>
+    <file alias="splash-math.svg">nebipad-splash-math.svg</file>
+    <file alias="logo.svg">nebipad-logo.svg</file>
+    <file alias="welcome.svg">nebipad-welcome.svg</file>
+    <file alias="suite-0.svg">suite-0.svg</file>
+    <file alias="suite-1.svg">suite-1.svg</file>
+    <file alias="suite-2.svg">suite-2.svg</file>
+    <file alias="suite-3.svg">suite-3.svg</file>
+  </qresource>
+</RCC>

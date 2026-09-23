@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=NebiPad+
+Comment=Editor di testo e codice
+Exec=NebiPadPlus %F
+Icon=nebipadplus
+Terminal=false
+Categories=Utility;TextEditor;
+MimeType=text/plain;

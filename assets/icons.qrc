@@ -1,0 +1,24 @@
+<RCC>
+  <qresource prefix="/icons">
+    <file>new.svg</file><file>open.svg</file><file>save.svg</file>
+    <file>save-all.svg</file><file>undo.svg</file><file>redo.svg</file>
+    <file>cut.svg</file><file>copy.svg</file><file>paste.svg</file>
+    <file>find.svg</file><file>replace.svg</file>
+    <file>close.svg</file><file>close-all.svg</file><file>print.svg</file>
+    <file>pin.svg</file>
+    <file>encrypt.svg</file><file>decrypt.svg</file>
+    <file>zoom-in.svg</file><file>zoom-out.svg</file><file>wrap.svg</file>
+    <file>bold.svg</file><file>italic.svg</file><file>underline.svg</file>
+    <file>strike.svg</file><file>color.svg</file>
+    <file>align-left.svg</file><file>align-center.svg</file>
+    <file>align-right.svg</file><file>align-justify.svg</file>
+    <file>record.svg</file><file>play-pause.svg</file><file>stop-audio.svg</file>
+    <file>connection.svg</file>
+    <file>line-solid.svg</file><file>line-dashed.svg</file>
+    <file>line-arrow.svg</file><file>line-dashed-arrow.svg</file>
+    <file>select.svg</file>
+    <file>text-box.svg</file><file>text-grow.svg</file><file>text-shrink.svg</file>
+    <file>orientation.svg</file><file>ruler.svg</file><file>grid.svg</file>
+    <file>table.svg</file><file>chart.svg</file><file>image.svg</file><file>pdf.svg</file>
+  </qresource>
+</RCC>
