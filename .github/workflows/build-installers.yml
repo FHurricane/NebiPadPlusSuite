@@ -19,7 +19,7 @@ jobs:
       - uses: jurplel/install-qt-action@v4
         with:
           version: '6.8.3'
-          modules: 'qtcharts qtmultimedia qtwebengine qtpositioning qtwebchannel qtpdf'
+          modules: 'qtcharts qtmultimedia qtwebengine qtpositioning qtserialport qtwebchannel qtpdf'
           cache: true
       - name: Configure
         run: cmake -S . -B build-release -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$Qt6_DIR"
@@ -49,7 +49,7 @@ jobs:
       - uses: jurplel/install-qt-action@v4
         with:
           version: '6.8.3'
-          modules: 'qtcharts qtmultimedia qtwebengine qtpositioning qtwebchannel qtpdf'
+          modules: 'qtcharts qtmultimedia qtwebengine qtpositioning qtserialport qtwebchannel qtpdf'
           cache: true
       - name: Install NSIS
         shell: pwsh
@@ -83,7 +83,7 @@ jobs:
       - uses: jurplel/install-qt-action@v4
         with:
           version: '6.8.3'
-          modules: 'qtcharts qtmultimedia qtwebengine qtpositioning qtwebchannel qtpdf'
+          modules: 'qtcharts qtmultimedia qtwebengine qtpositioning qtserialport qtwebchannel qtpdf'
           cache: true
       - name: Install dependencies
         run: |
