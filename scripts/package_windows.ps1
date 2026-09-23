@@ -9,7 +9,14 @@ $build = (Resolve-Path (Join-Path $root $BuildDirectory)).Path
 $output = Join-Path $root $OutputDirectory
 $stage = Join-Path $output "windows-stage"
 New-Item -ItemType Directory -Force -Path $stage | Out-Null
-Copy-Item (Join-Path $build "NebiPadPlus.exe") $stage -Force
+$executable = @(
+    (Join-Path $build "NebiPadPlus.exe"),
+    (Join-Path $build "Release/NebiPadPlus.exe")
+) | Where-Object { Test-Path $_ } | Select-Object -First 1
+if (-not $executable) {
+    throw "NebiPadPlus.exe was not found in $build or its Release directory"
+}
+Copy-Item $executable $stage -Force
 
 $deploy = Get-Command windeployqt.exe -ErrorAction Stop
 & $deploy.Source --release --compiler-runtime --no-translations (Join-Path $stage "NebiPadPlus.exe")
