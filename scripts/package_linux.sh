@@ -8,7 +8,7 @@ mkdir -p "$root/$output_dir"
 
 DESTDIR="$root/AppDir" cmake --install "$root/$build_dir"
 desktop="$root/AppDir/usr/share/applications/nebipadplus.desktop"
-icon="$root/AppDir/usr/share/icons/hicolor/1024x1024/apps/nebipadplus.png"
+icon="$root/AppDir/usr/share/icons/hicolor/512x512/apps/nebipadplus.png"
 
 curl -L -o "$root/linuxdeploy.AppImage" https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
 curl -L -o "$root/linuxdeploy-plugin-qt" https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage

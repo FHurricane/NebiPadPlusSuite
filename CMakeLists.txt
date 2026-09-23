@@ -124,7 +124,7 @@ install(TARGETS NebiPadPlus
 
 if(UNIX AND NOT APPLE)
     install(FILES assets/nebipadplus.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
-    install(FILES assets/nebipad-logo.png DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/1024x1024/apps RENAME nebipadplus.png)
+    install(FILES assets/nebipad-logo-512.png DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/512x512/apps RENAME nebipadplus.png)
 endif()
 
 include(CTest)
