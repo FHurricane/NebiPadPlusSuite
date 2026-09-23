@@ -60,8 +60,7 @@ bool decodeText(const QByteArray &bytes, TextEncoding encoding, QString *text)
     }
     QStringDecoder decoder(codec);
     *text = decoder(payload);
-    const auto final = decoder.finalize();
-    return !decoder.hasError() && final.error == QStringConverter::FinalizeResultError::NoError;
+    return !decoder.hasError();
 }
 
 bool encodeText(const QString &text, TextEncoding encoding, QByteArray *bytes)
