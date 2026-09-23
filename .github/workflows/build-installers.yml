@@ -26,9 +26,9 @@ jobs:
       - name: Build
         run: cmake --build build-release --config Release --parallel 3
       - name: Test
-        # This interaction test needs a real desktop session; hosted runners
-        # use a headless Qt platform. It is still compiled in the Build step.
-        run: ctest --test-dir build-release -C Release --output-on-failure -E suitewindow_test
+        # UI interaction tests need a real desktop session; hosted runners use
+        # a headless Qt platform. They are still compiled in the Build step.
+        run: ctest --test-dir build-release -C Release --output-on-failure -E "(suitewindow|menuvisibility)_test"
         env:
           QT_QPA_PLATFORM: offscreen
       - name: Bundle Qt and create DMG
@@ -62,9 +62,9 @@ jobs:
         run: cmake --build build-release --config Release --parallel 3
       - name: Test
         shell: pwsh
-        # This interaction test needs a real desktop session; hosted runners
-        # use a headless Qt platform. It is still compiled in the Build step.
-        run: ctest --test-dir build-release -C Release --output-on-failure -E suitewindow_test
+        # UI interaction tests need a real desktop session; hosted runners use
+        # a headless Qt platform. They are still compiled in the Build step.
+        run: ctest --test-dir build-release -C Release --output-on-failure -E "(suitewindow|menuvisibility)_test"
         env:
           QT_QPA_PLATFORM: offscreen
       - name: Create installer
@@ -94,9 +94,9 @@ jobs:
       - name: Build
         run: cmake --build build-release --parallel 3
       - name: Test
-        # This interaction test needs a real desktop session; hosted runners
-        # use a headless Qt platform. It is still compiled in the Build step.
-        run: ctest --test-dir build-release --output-on-failure -E suitewindow_test
+        # UI interaction tests need a real desktop session; hosted runners use
+        # a headless Qt platform. They are still compiled in the Build step.
+        run: ctest --test-dir build-release --output-on-failure -E "(suitewindow|menuvisibility)_test"
         env:
           QT_QPA_PLATFORM: offscreen
       - name: Create AppImage and DEB

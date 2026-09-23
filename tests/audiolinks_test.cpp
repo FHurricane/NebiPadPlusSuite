@@ -10,14 +10,17 @@
 int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
-    const QString document = "/tmp/NebiPad note.txt";
-    const QString external = QUrl::fromLocalFile("/tmp/Audio Folder/recording/voice.wav")
+    const QString tempRoot = QDir::tempPath();
+    const QString document = QDir(tempRoot).filePath("NebiPad note.txt");
+    const QString externalPath = QDir(tempRoot).filePath("Audio Folder/recording/voice.wav");
+    const QString external = QUrl::fromLocalFile(externalPath)
         .toString(QUrl::FullyEncoded);
     const QString text = QString("uno [Audio: a](recording/a.wav) due [Audio: voice](%1)").arg(external);
     if (audioTargetAt(text, 14) != "recording/a.wav") return 1;
     if (nearestAudioTarget(text, text.size()) != external) return 2;
-    if (resolveAudioTarget(document, "recording/a.wav") != "/tmp/recording/a.wav") return 3;
-    if (resolveAudioTarget(document, external) != "/tmp/Audio Folder/recording/voice.wav") return 4;
+    if (resolveAudioTarget(document, "recording/a.wav") !=
+        QDir(tempRoot).filePath("recording/a.wav")) return 3;
+    if (resolveAudioTarget(document, external) != externalPath) return 4;
     if (relativeAudioFiles(text) != QStringList{"a.wav"}) return 5;
     if (!resolveAudioTarget(document, "recording/../other.wav").isEmpty()) return 6;
     QTemporaryDir temporary;
