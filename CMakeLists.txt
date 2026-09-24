@@ -112,6 +112,8 @@ if(APPLE)
                 "$<TARGET_BUNDLE_DIR:NebiPadPlus>/Contents/Frameworks"
         COMMAND ${CMAKE_COMMAND} -E remove_directory
                 "$<TARGET_BUNDLE_DIR:NebiPadPlus>/Contents/PlugIns"
+        COMMAND ${CMAKE_COMMAND} -E rm -f
+                "$<TARGET_BUNDLE_DIR:NebiPadPlus>/Contents/Resources/qt.conf"
         COMMENT "Removing stale deployed Qt libraries before relinking")
 elseif(WIN32)
     target_sources(NebiPadPlus PRIVATE assets/NebiPad.rc)
