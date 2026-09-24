@@ -51,6 +51,8 @@ qt_add_executable(NebiPadPlus
     src/localization.h
     src/welcomewindow.cpp
     src/welcomewindow.h
+    src/nebimagewindow.cpp
+    src/nebimagewindow.h
     src/suitewindow.cpp
     src/suitewindow.h
     src/imageeditdialog.cpp
@@ -252,4 +254,12 @@ if(BUILD_TESTING)
     endif()
     add_test(NAME suitewindow_test COMMAND suitewindow_test)
     set_tests_properties(suitewindow_test PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+
+    add_executable(nebimagewindow_test tests/nebimagewindow_test.cpp
+        src/nebimagewindow.cpp src/nebimagewindow.h src/recentfiles.cpp src/recentfiles.h
+        src/localization.cpp src/localization.h assets/icons.qrc)
+    target_include_directories(nebimagewindow_test PRIVATE src)
+    target_link_libraries(nebimagewindow_test PRIVATE Qt6::Widgets Qt6::PrintSupport)
+    add_test(NAME nebimagewindow_test COMMAND nebimagewindow_test)
+    set_tests_properties(nebimagewindow_test PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 endif()

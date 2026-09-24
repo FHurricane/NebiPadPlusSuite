@@ -2,6 +2,7 @@
 #include "welcomewindow.h"
 #include "suitewindow.h"
 #include "localization.h"
+#include "nebimagewindow.h"
 
 #include <QApplication>
 #include <QElapsedTimer>
@@ -41,6 +42,7 @@ QString applicationSplashPath(int selection)
     case 1: return QStringLiteral(":/brand/splash-mindnet.svg");
     case 2: return QStringLiteral(":/brand/splash-impagination.svg");
     case 3: return QStringLiteral(":/brand/splash-math.svg");
+    case 4: return QStringLiteral(":/brand/splash-nebimage.svg");
     default: return QStringLiteral(":/brand/splash.svg");
     }
 }
@@ -95,12 +97,16 @@ int main(int argc, char *argv[])
             if (selection == 0) {
                 window.newDocument();
                 window.show();
-            } else {
+            } else if (selection < 4) {
                 SuiteMode mode = selection == 1 ? SuiteMode::MindNet
                     : selection == 2 ? SuiteMode::Impagination : SuiteMode::Math;
                 auto *suite = new SuiteWindow(mode);
                 suite->setAttribute(Qt::WA_DeleteOnClose);
                 suite->show();
+            } else {
+                auto *images = new NebImageWindow;
+                images->setAttribute(Qt::WA_DeleteOnClose);
+                images->show();
             }
         });
     });
@@ -109,9 +115,16 @@ int main(int argc, char *argv[])
         if (application.contains("MindNet", Qt::CaseInsensitive)) selection = 1;
         else if (application.contains("Impagination", Qt::CaseInsensitive)) selection = 2;
         else if (application.contains("Math", Qt::CaseInsensitive)) selection = 3;
+        else if (application.contains("NebImage", Qt::CaseInsensitive)) selection = 4;
         launchWithSplash(selection, [&, path, selection] {
             if (selection == 0) {
                 if (window.openFile(path)) window.show();
+                return;
+            }
+            if (selection == 4) {
+                auto *images = new NebImageWindow;
+                images->setAttribute(Qt::WA_DeleteOnClose);
+                if (images->openFile(path)) images->show(); else images->deleteLater();
                 return;
             }
             const SuiteMode mode = selection == 1 ? SuiteMode::MindNet

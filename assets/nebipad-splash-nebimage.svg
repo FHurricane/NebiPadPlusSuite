@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="500" viewBox="0 0 900 500">
+ <defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#24153f"/><stop offset=".55" stop-color="#54205a"/><stop offset="1" stop-color="#251438"/></linearGradient>
+  <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#8c4bd0"/><stop offset="1" stop-color="#b23c7f"/></linearGradient>
+  <linearGradient id="mark" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#c996ff"/><stop offset="1" stop-color="#ff79ba"/></linearGradient>
+ </defs>
+ <rect x="1" y="1" width="898" height="498" rx="28" fill="url(#bg)" stroke="#774b91" stroke-width="2"/>
+ <path d="M1 366C170 280 270 425 445 335S740 270 899 349V472Q899 499 872 499H28Q1 499 1 472Z" fill="#a33d83" opacity=".2"/>
+ <path d="M454 1H899V204C750 177 654 119 454 1Z" fill="#d77ac0" opacity=".09"/>
+ <rect x="68" y="82" width="304" height="334" rx="34" fill="url(#panel)" opacity=".3"/>
+ <rect x="84" y="98" width="272" height="302" rx="26" fill="#29183e" stroke="#8552a0" stroke-width="2"/>
+ <rect x="117" y="145" width="207" height="174" rx="12" fill="#f9f4ff"/>
+ <circle cx="269" cy="188" r="21" fill="#efabd2"/>
+ <path d="M126 307l61-72 40 42 28-28 60 58z" fill="url(#mark)"/>
+ <rect x="143" y="339" width="155" height="8" rx="4" fill="#c89ce2"/><circle cx="107" cy="123" r="4" fill="#cf8ff4"/><circle cx="123" cy="123" r="4" fill="#ff7ebc"/>
+ <text x="422" y="204" fill="#f8f3ff" font-family="Avenir Next, Inter, Segoe UI, Arial, sans-serif" font-size="69" font-weight="700" letter-spacing="-3">NebiPad</text>
+ <text x="700" y="204" fill="#ec83c5" font-family="Avenir Next, Inter, Segoe UI, Arial, sans-serif" font-size="70" font-weight="700">+</text>
+ <rect x="425" y="229" width="86" height="5" rx="2.5" fill="url(#mark)"/>
+ <text x="425" y="282" fill="#eadcf7" font-family="Avenir Next, Inter, Segoe UI, Arial, sans-serif" font-size="29" font-weight="600">NebImage+</text>
+ <text x="426" y="329" fill="#b89acb" font-family="Avenir Next, Inter, Segoe UI, Arial, sans-serif" font-size="15" letter-spacing="2">ORGANIZZA · OSSERVA · CREA</text>
+ <path d="M425 376H819" stroke="#8d63a5" opacity=".55"/><text x="425" y="405" fill="#a987bd" font-family="Avenir Next, Inter, Segoe UI, Arial, sans-serif" font-size="13">NEBIPAD+ SUITE / NEBIMAGE+</text>
+ <text x="42" y="466" fill="#d8c5e7" font-family="Avenir Next, Inter, Segoe UI, Arial, sans-serif" font-size="14" font-weight="500">Developer: Costa Fabio Copyright 2026</text>
+</svg>

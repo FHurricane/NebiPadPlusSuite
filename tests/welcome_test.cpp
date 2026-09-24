@@ -57,11 +57,11 @@ int main(int argc, char *argv[])
     welcome.show();
     app.processEvents();
     recent->itemClicked(recent->item(0));
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < 5; ++i) {
         auto *button = welcome.findChild<QPushButton *>(QString("suiteButton%1").arg(i));
         if (!button) return 8;
         button->click();
         if (!welcome.isVisible()) return 9;
     }
-    return openedFiles == 1 && openedSuites == 4 && welcome.isVisible() ? 0 : 4;
+    return openedFiles == 1 && openedSuites == 5 && welcome.isVisible() ? 0 : 4;
 }

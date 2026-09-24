@@ -7,6 +7,7 @@
 #include <QCoreApplication>
 #include <QFileInfo>
 #include <QHBoxLayout>
+#include <QGridLayout>
 #include <QIcon>
 #include <QLabel>
 #include <QListWidget>
@@ -38,7 +39,7 @@ WelcomeWindow::WelcomeWindow(QWidget *parent) : QDialog(parent),
 {
     setObjectName("welcomeWindow");
     setWindowTitle(tr("Benvenuto in NebiPad+"));
-    setFixedSize(980, 690);
+    setFixedSize(1080, 690);
 
     auto *root = new QHBoxLayout(this);
     root->setContentsMargins(0, 0, 0, 0);
@@ -83,18 +84,19 @@ WelcomeWindow::WelcomeWindow(QWidget *parent) : QDialog(parent),
     suiteHeading->setObjectName("recentHeading");
     layout->addWidget(suiteHeading);
     layout->addSpacing(10);
-    auto *suiteButtons = new QHBoxLayout;
+    auto *suiteButtons = new QGridLayout;
     suiteButtons->setSpacing(8);
-    const QStringList names{tr("NebiPad+"), tr("MindNet"), tr("Impagination"), tr("Math")};
+    const QStringList names{tr("NebiPad+"), tr("MindNet"), tr("Impagination"), tr("Math"), tr("NebImage+")};
     for (int i = 0; i < names.size(); ++i) {
         auto *button = new QPushButton(names[i], right);
         button->setObjectName(QString("suiteButton%1").arg(i));
         button->setIcon(QIcon(renderSvg(QString(":/brand/suite-%1.svg").arg(i), QSize(28, 28))));
         button->setIconSize(QSize(28, 28));
         button->setFixedHeight(56);
+        button->setMinimumWidth(180);
         button->setAutoDefault(false);
         button->setFocusPolicy(Qt::NoFocus);
-        suiteButtons->addWidget(button);
+        suiteButtons->addWidget(button, i / 3, i % 3);
         connect(button, &QPushButton::clicked, this, [this, i] {
             if (openSuite_) openSuite_(i);
             else if (i == 0 && start_) start_();

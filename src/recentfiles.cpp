@@ -18,6 +18,9 @@ QString normalizedPath(const QString &path)
 QString inferredApplication(const QString &path)
 {
     const QString lower = path.toLower();
+    static const QStringList imageExtensions{"jpg","jpeg","png","webp","bmp","gif","tif","tiff","heic","heif","avif"};
+    for (const QString &format : imageExtensions)
+        if (lower.endsWith('.' + format)) return QStringLiteral("NebImage+");
     if (lower.endsWith(".mindnet.json")) return QStringLiteral("MindNet");
     if (lower.endsWith(".math.html")) return QStringLiteral("Math");
     if (lower.endsWith(".pdf")) return QStringLiteral("Impagination");

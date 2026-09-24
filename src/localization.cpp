@@ -175,6 +175,38 @@ const QHash<QString, QString> &englishTranslations()
         {"Direzione", "Direction"}, {"Condizione?", "Condition?"}, {"Elaborazione", "Processing"},
         {"Dati", "Data"}, {"Nodo centrale", "Central Node"},
         {"orizzontale", "landscape"}, {"verticale", "portrait"}
+        ,{"NebImage+", "NebImage+"}, {"Cartelle", "Folders"}, {"Pellicola", "Filmstrip"}
+        ,{"Proprietà", "Properties"}, {"Istogramma", "Histogram"}
+        ,{"Apri immagini...", "Open Images..."}, {"Apri immagini", "Open Images"}
+        ,{"Apri cartella...", "Open Folder..."}, {"Apri cartella", "Open Folder"}
+        ,{"Immagini (%1);;Tutti i file (*)", "Images (%1);;All Files (*)"}
+        ,{"Mostra nel gestore file", "Show in File Manager"}, {"Elimina file", "Delete File"}
+        ,{"Copia immagine", "Copy Image"}, {"Ripristina originale", "Restore Original"}
+        ,{"Ruota a sinistra", "Rotate Left"}, {"Ruota a destra", "Rotate Right"}
+        ,{"Rifletti orizzontalmente", "Flip Horizontally"}, {"Rifletti verticalmente", "Flip Vertically"}
+        ,{"Ritaglia...", "Crop..."}, {"Ridimensiona...", "Resize..."}, {"Luce e colore...", "Light and Color..."}
+        ,{"Effetti", "Effects"}, {"Scala di grigi", "Grayscale"}, {"Seppia", "Sepia"}
+        ,{"Negativo", "Negative"}, {"Contrasto automatico", "Auto Contrast"}
+        ,{"Immagine successiva", "Next Image"}, {"Immagine precedente", "Previous Image"}
+        ,{"Adatta immagine", "Fit Image"}, {"Adatta larghezza", "Fit Width"}, {"Dimensioni reali", "Actual Size"}
+        ,{"Schermo intero", "Full Screen"}, {"Presentazione", "Slideshow"}, {"&Batch", "&Batch"}
+        ,{"Converti formato...", "Convert Format..."}, {"Crea provino a contatto...", "Create Contact Sheet..."}
+        ,{"Informazioni immagine...", "Image Information..."}, {"Colore sfondo...", "Background Color..."}
+        ,{"Informazioni su NebImage+", "About NebImage+"}
+        ,{"NebImage+ — visualizzatore e gestore fotografico della NebiPad+ Suite.", "NebImage+ — photo viewer and manager for the NebiPad+ Suite."}
+        ,{"Visualizzazione immagini", "Image Viewing"}, {"Zoom +", "Zoom +"}, {"Zoom −", "Zoom −"}
+        ,{"Adatta", "Fit"}, {"Ritaglia", "Crop"}, {"Regola", "Adjust"}
+        ,{"Impossibile aprire l'immagine:\n%1", "Unable to open image:\n%1"}
+        ,{"Ridimensiona immagine", "Resize Image"}, {"Mantieni proporzioni", "Keep Proportions"}
+        ,{"Larghezza (px)", "Width (px)"}, {"Altezza (px)", "Height (px)"}
+        ,{"Luce e colore", "Light and Color"}, {"Luminosità", "Brightness"}, {"Contrasto", "Contrast"}, {"Saturazione", "Saturation"}
+        ,{"Salva immagine", "Save Image"}, {"Salvare le modifiche all'immagine corrente?", "Save changes to the current image?"}
+        ,{"Rinomina", "Rename"}, {"Spostare questa immagine nel cestino?", "Move this image to the trash?"}
+        ,{"Seleziona immagini", "Select Images"}, {"Cartella di destinazione", "Destination Folder"}
+        ,{"Formato:", "Format:"}, {"Batch", "Batch"}, {"Conversione completata.", "Conversion complete."}
+        ,{"Larghezza massima (px):", "Maximum width (px):"}, {"Ridimensionamento completato.", "Resize complete."}
+        ,{"Salva provino", "Save Contact Sheet"}, {"Presentazione terminata", "Slideshow ended"}
+        ,{"Secondi per immagine:", "Seconds per image:"}, {"Ritaglia immagine", "Crop Image"}
         ,{"Registrazione in corso  ·  Stop per terminare", "Recording · press Stop to finish"}
         ,{"In ascolto  ·  F12 per terminare", "Listening · press F12 to stop"}
         ,{"Audio salvato nel documento", "Audio saved in the document"}
