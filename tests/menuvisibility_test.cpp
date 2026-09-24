@@ -43,6 +43,12 @@ int main(int argc, char *argv[])
     window.show();
     app.processEvents();
     if (!window.findChild<QAction *>("mainExportPdfAction")) return 47;
+    auto *runDocument = window.findChild<QAction *>("runDocumentAction");
+    auto *runWithArguments = window.findChild<QAction *>("runWithArgumentsAction");
+    auto *stopRun = window.findChild<QAction *>("stopRunAction");
+    auto *chooseRunTool = window.findChild<QAction *>("chooseRunToolAction");
+    if (!runDocument || runDocument->shortcut() != QKeySequence(Qt::Key_F5) ||
+        !runWithArguments || !stopRun || !chooseRunTool) return 51;
     auto *dictationAction = window.findChild<QAction *>("dictationAction");
     auto *dictationOverlay = window.findChild<QWidget *>("dictationOverlay");
     auto *recordAction = window.findChild<QAction *>("recordAudioAction");

@@ -12,6 +12,9 @@ class QFontComboBox;
 class QMenu;
 class QTabWidget;
 class QLabel;
+class QPlainTextEdit;
+class QProcess;
+class QUrl;
 class DictationController;
 class DictationOverlay;
 class RecordingController;
@@ -68,6 +71,9 @@ private:
     QVector<MacroStep> recordedMacro_;
     bool macroRecording_ = false;
     bool macroPlaying_ = false;
+    QPointer<QProcess> runProcess_;
+    QPointer<QPlainTextEdit> runOutput_;
+    QString runArguments_;
 
     Editor *currentEditor() const;
     int addDocument(const QString &path = {}, const QString &text = {},
@@ -120,4 +126,9 @@ private:
     QVector<MacroStep> loadMacro(const QString &name) const;
     void storeMacro(const QString &name, const QVector<MacroStep> &steps);
     void manageMacros();
+    void runCurrentDocument(bool askArguments = false);
+    void stopRunningProgram();
+    QString resolveRunTool(const QString &toolId, const QStringList &candidates) const;
+    void showMissingRunTool(const QString &toolId, const QString &displayName,
+                            const QUrl &downloadUrl);
 };

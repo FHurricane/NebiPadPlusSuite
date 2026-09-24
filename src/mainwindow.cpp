@@ -23,6 +23,7 @@
 #include <QEvent>
 #include <QColorDialog>
 #include <QDateTime>
+#include <QDesktopServices>
 #include <QDir>
 #include <QCollator>
 #include <QFile>
@@ -572,6 +573,33 @@ MainWindow::MainWindow(QWidget *parent, bool startEmpty)
     refreshSavedMacros();
     auto *runMenu = menuBar()->addMenu(tr("&Esegui"));
     runMenu->setObjectName("runMenu");
+    auto *runAction = runMenu->addAction(tr("Esegui documento"), QKeySequence(Qt::Key_F5));
+    runAction->setObjectName("runDocumentAction");
+    auto *runWithArgumentsAction = runMenu->addAction(
+        tr("Esegui con argomenti..."), QKeySequence("Shift+F5"));
+    runWithArgumentsAction->setObjectName("runWithArgumentsAction");
+    auto *stopRunAction = runMenu->addAction(
+        tr("Interrompi esecuzione"), QKeySequence("Shift+F6"));
+    stopRunAction->setObjectName("stopRunAction");
+    runMenu->addSeparator();
+    auto *chooseRunnerAction = runMenu->addAction(tr("Seleziona compilatore/interprete..."));
+    chooseRunnerAction->setObjectName("chooseRunToolAction");
+    connect(runAction, &QAction::triggered, this, [this] { runCurrentDocument(false); });
+    connect(runWithArgumentsAction, &QAction::triggered, this,
+            [this] { runCurrentDocument(true); });
+    connect(stopRunAction, &QAction::triggered, this, &MainWindow::stopRunningProgram);
+    connect(chooseRunnerAction, &QAction::triggered, this, [this] {
+        auto *editor = currentEditor();
+        if (!editor || editor->languageIndex() < 0) {
+            QMessageBox::information(this, tr("Esegui"),
+                                     tr("Seleziona prima il linguaggio del documento."));
+            return;
+        }
+        const QString language = languages()[editor->languageIndex()].name;
+        const QString path = QFileDialog::getOpenFileName(
+            this, tr("Seleziona compilatore o interprete per %1").arg(language));
+        if (!path.isEmpty()) QSettings().setValue("runner/languages/" + language, path);
+    });
     auto *pluginMenu = menuBar()->addMenu(tr("&Plugin"));
     pluginMenu->setObjectName("pluginMenu");
     auto *windowMenu = menuBar()->addMenu(tr("&Finestra"));
@@ -1202,6 +1230,262 @@ void MainWindow::exportPdf()
     printer.setOutputFileName(path);
     editor->print(&printer);
     statusBar()->showMessage(tr("PDF esportato: %1").arg(path), 5000);
+}
+
+QString MainWindow::resolveRunTool(const QString &toolId, const QStringList &candidates) const
+{
+    const QString configured = QSettings().value("runner/tools/" + toolId).toString();
+    if (!configured.isEmpty() && QFileInfo(configured).isExecutable()) return configured;
+    for (const QString &candidate : candidates) {
+        const QString executable = QStandardPaths::findExecutable(candidate);
+        if (!executable.isEmpty()) return executable;
+    }
+    return {};
+}
+
+void MainWindow::showMissingRunTool(const QString &toolId, const QString &displayName,
+                                    const QUrl &downloadUrl)
+{
+    QMessageBox dialog(this);
+    dialog.setIcon(QMessageBox::Information);
+    dialog.setWindowTitle(tr("Compilatore o interprete non trovato"));
+    dialog.setText(tr("NebiPad+ non ha trovato %1 nel sistema.").arg(displayName));
+    dialog.setInformativeText(tr("Puoi aprire la pagina ufficiale per scaricarlo oppure "
+                                 "selezionare un eseguibile già installato."));
+    auto *download = dialog.addButton(tr("Scarica %1").arg(displayName), QMessageBox::ActionRole);
+    auto *select = dialog.addButton(tr("Seleziona eseguibile..."), QMessageBox::ActionRole);
+    dialog.addButton(QMessageBox::Cancel);
+    dialog.exec();
+    if (dialog.clickedButton() == download) {
+        QDesktopServices::openUrl(downloadUrl);
+    } else if (dialog.clickedButton() == select) {
+        const QString path = QFileDialog::getOpenFileName(
+            this, tr("Seleziona %1").arg(displayName));
+        if (!path.isEmpty()) QSettings().setValue("runner/tools/" + toolId, path);
+    }
+}
+
+void MainWindow::stopRunningProgram()
+{
+    if (!runProcess_ || runProcess_->state() == QProcess::NotRunning) {
+        statusBar()->showMessage(tr("Nessun programma in esecuzione"), 2500);
+        return;
+    }
+    runProcess_->terminate();
+    if (!runProcess_->waitForFinished(1200)) runProcess_->kill();
+    if (runOutput_) runOutput_->appendPlainText(tr("\n[esecuzione interrotta]"));
+}
+
+void MainWindow::runCurrentDocument(bool askArguments)
+{
+    Editor *editor = currentEditor();
+    const int tabIndex = tabs_->currentIndex();
+    if (!editor || tabIndex < 0) return;
+    if (editor->languageIndex() < 0) {
+        QMessageBox::information(this, tr("Esegui"),
+                                 tr("Seleziona un linguaggio di programmazione prima di eseguire."));
+        return;
+    }
+    if (runProcess_ && runProcess_->state() != QProcess::NotRunning) {
+        QMessageBox::information(this, tr("Esegui"),
+                                 tr("Un programma è già in esecuzione. Interrompilo prima di avviarne un altro."));
+        return;
+    }
+    if (documentPath(tabIndex).isEmpty() || editor->document()->isModified() || editor->encodingDirty()) {
+        if (!saveDocument(tabIndex)) return;
+    }
+
+    const QString source = QFileInfo(documentPath(tabIndex)).absoluteFilePath();
+    const QString workingDirectory = QFileInfo(source).absolutePath();
+    const QString language = languages()[editor->languageIndex()].name;
+    if (askArguments) {
+        bool accepted = false;
+        const QString entered = QInputDialog::getText(
+            this, tr("Argomenti del programma"),
+            tr("Argomenti da passare al programma:"), QLineEdit::Normal,
+            runArguments_, &accepted);
+        if (!accepted) return;
+        runArguments_ = entered;
+    }
+    const QStringList userArguments = QProcess::splitCommand(runArguments_);
+
+    if (language == "HTML" || language == "SVG" || language == "XML") {
+        QDesktopServices::openUrl(QUrl::fromLocalFile(source));
+        statusBar()->showMessage(tr("Documento aperto nel browser"), 3000);
+        return;
+    }
+
+    struct Plan {
+        QString toolId;
+        QString displayName;
+        QStringList candidates;
+        QUrl download;
+        QStringList compileArguments;
+        QString runProgram;
+        QStringList runArguments;
+        bool compile = false;
+    } plan;
+    const QString base = QFileInfo(source).completeBaseName();
+    const QString outputDirectory = QDir(QDir::tempPath()).filePath("NebiPadPlus/run");
+    QDir().mkpath(outputDirectory);
+    QString nativeOutput = QDir(outputDirectory).filePath(base);
+#ifdef Q_OS_WIN
+    nativeOutput += ".exe";
+#endif
+    const auto interpreted = [&](const QString &id, const QString &name,
+                                 const QStringList &commands, const QString &url) {
+        plan.toolId = id; plan.displayName = name; plan.candidates = commands;
+        plan.download = QUrl(url); plan.runArguments = {source};
+        plan.runArguments.append(userArguments);
+    };
+    const auto compiled = [&](const QString &id, const QString &name,
+                              const QStringList &commands, const QString &url,
+                              const QStringList &arguments) {
+        plan.toolId = id; plan.displayName = name; plan.candidates = commands;
+        plan.download = QUrl(url); plan.compile = true;
+        plan.compileArguments = arguments; plan.runProgram = nativeOutput;
+        plan.runArguments = userArguments;
+    };
+
+    if (language == "Python") interpreted("python", "Python", {"python3", "python"}, "https://www.python.org/downloads/");
+    else if (language == "JavaScript") interpreted("node", "Node.js", {"node"}, "https://nodejs.org/en/download");
+    else if (language == "TypeScript") interpreted("ts-node", "ts-node", {"ts-node", "tsx"}, "https://www.typescriptlang.org/download/");
+    else if (language == "Ruby") interpreted("ruby", "Ruby", {"ruby"}, "https://www.ruby-lang.org/en/downloads/");
+    else if (language == "PHP") interpreted("php", "PHP", {"php"}, "https://www.php.net/downloads.php");
+    else if (language == "Perl") interpreted("perl", "Perl", {"perl"}, "https://www.perl.org/get.html");
+    else if (language == "Lua") interpreted("lua", "Lua", {"lua", "lua5.4", "lua5.3"}, "https://www.lua.org/download.html");
+    else if (language == "R") interpreted("rscript", "R", {"Rscript"}, "https://cran.r-project.org/");
+    else if (language == "Julia") interpreted("julia", "Julia", {"julia"}, "https://julialang.org/downloads/");
+    else if (language == "Dart") interpreted("dart", "Dart SDK", {"dart"}, "https://dart.dev/get-dart");
+    else if (language == "Swift") interpreted("swift", "Swift", {"swift"}, "https://www.swift.org/install/");
+    else if (language == "Bash") interpreted("bash", "Bash", {"bash"}, "https://www.gnu.org/software/bash/");
+    else if (language == "Shell") interpreted("sh", "Shell POSIX", {"sh"}, "https://www.gnu.org/software/bash/");
+    else if (language == "Zsh") interpreted("zsh", "Zsh", {"zsh"}, "https://www.zsh.org/");
+    else if (language == "Fish") interpreted("fish", "Fish", {"fish"}, "https://fishshell.com/");
+    else if (language == "PowerShell") interpreted("pwsh", "PowerShell", {"pwsh", "powershell"}, "https://learn.microsoft.com/powershell/scripting/install/installing-powershell");
+    else if (language == "Tcl") interpreted("tclsh", "Tcl", {"tclsh"}, "https://www.tcl.tk/software/tcltk/download.html");
+    else if (language == "Groovy") interpreted("groovy", "Groovy", {"groovy"}, "https://groovy.apache.org/download.html");
+    else if (language == "Haskell") interpreted("runhaskell", "GHC", {"runhaskell", "runghc"}, "https://www.haskell.org/ghcup/");
+    else if (language == "Elixir") interpreted("elixir", "Elixir", {"elixir"}, "https://elixir-lang.org/install.html");
+    else if (language == "Clojure") interpreted("clojure", "Clojure", {"clojure"}, "https://clojure.org/guides/install_clojure");
+    else if (language == "F#") interpreted("dotnet", ".NET SDK", {"dotnet"}, "https://dotnet.microsoft.com/download"), plan.runArguments = QStringList{"fsi", source} + userArguments;
+    else if (language == "Scala") interpreted("scala", "Scala", {"scala"}, "https://www.scala-lang.org/download/");
+    else if (language == "CoffeeScript") interpreted("coffee", "CoffeeScript", {"coffee"}, "https://coffeescript.org/#installation");
+    else if (language == "Lisp") interpreted("sbcl", "SBCL", {"sbcl"}, "https://www.sbcl.org/platform-table.html"), plan.runArguments = QStringList{"--script", source} + userArguments;
+    else if (language == "Scheme") interpreted("guile", "GNU Guile", {"guile"}, "https://www.gnu.org/software/guile/download/"), plan.runArguments = QStringList{"-s", source} + userArguments;
+    else if (language == "Octave") interpreted("octave", "GNU Octave", {"octave"}, "https://octave.org/download"), plan.runArguments = QStringList{"-qf", source} + userArguments;
+    else if (language == "Prolog") interpreted("swipl", "SWI-Prolog", {"swipl"}, "https://www.swi-prolog.org/download/stable"), plan.runArguments = QStringList{"-s", source} + userArguments;
+    else if (language == "Forth") interpreted("gforth", "Gforth", {"gforth"}, "https://www.gnu.org/software/gforth/");
+    else if (language == "Raku") interpreted("raku", "Raku", {"raku"}, "https://rakudo.org/downloads");
+    else if (language == "Escript") interpreted("escript", "Erlang/OTP", {"escript"}, "https://www.erlang.org/downloads");
+    else if (language == "AWK") interpreted("awk", "AWK", {"awk", "gawk"}, "https://www.gnu.org/software/gawk/");
+    else if (language == "C") compiled("c", "Clang/GCC", {"clang", "gcc"}, "https://clang.llvm.org/get_started.html", {source, "-o", nativeOutput});
+    else if (language == "C++") compiled("cpp", "Clang++/G++", {"clang++", "g++"}, "https://clang.llvm.org/get_started.html", {source, "-std=c++17", "-o", nativeOutput});
+    else if (language == "Ada") compiled("ada", "GNAT", {"gnatmake"}, "https://www.adacore.com/download", {source, "-o", nativeOutput});
+    else if (language == "Fortran" || language == "Fortran fixed form") compiled("fortran", "GFortran", {"gfortran"}, "https://gcc.gnu.org/fortran/", {source, "-o", nativeOutput});
+    else if (language == "D") compiled("d", "LDC/DMD", {"ldc2", "dmd"}, "https://dlang.org/download.html", {source, "-of=" + nativeOutput});
+    else if (language == "COBOL") compiled("cobol", "GnuCOBOL", {"cobc"}, "https://gnucobol.sourceforge.io/", {"-x", source, "-o", nativeOutput});
+    else if (language == "Pascal") compiled("pascal", "Free Pascal", {"fpc"}, "https://www.freepascal.org/download.html", {"-o" + nativeOutput, source});
+    else if (language == "Nim") compiled("nim", "Nim", {"nim"}, "https://nim-lang.org/install.html", {"c", "-o:" + nativeOutput, source});
+    else if (language == "Crystal") compiled("crystal", "Crystal", {"crystal"}, "https://crystal-lang.org/install/", {"build", source, "-o", nativeOutput});
+    else if (language == "Rust") compiled("rust", "Rust", {"rustc"}, "https://www.rust-lang.org/tools/install", {source, "-o", nativeOutput});
+    else if (language == "Zig") compiled("zig", "Zig", {"zig"}, "https://ziglang.org/download/", {"build-exe", source, "-femit-bin=" + nativeOutput});
+    else if (language == "Go") interpreted("go", "Go", {"go"}, "https://go.dev/dl/"), plan.runArguments = QStringList{"run", source} + userArguments;
+    else if (language == "Java") {
+        plan.toolId = "javac"; plan.displayName = "JDK"; plan.candidates = {"javac"};
+        plan.download = QUrl("https://adoptium.net/"); plan.compile = true;
+        plan.compileArguments = {"-d", outputDirectory, source};
+        plan.runProgram = resolveRunTool("java", {"java"});
+        plan.runArguments = {"-cp", outputDirectory, base}; plan.runArguments.append(userArguments);
+    } else if (language == "Makefile") interpreted("make", "Make", {"make", "gmake"}, "https://www.gnu.org/software/make/"), plan.runArguments = QStringList{"-f", source} + userArguments;
+    else if (language == "CMake") interpreted("cmake", "CMake", {"cmake"}, "https://cmake.org/download/"), plan.runArguments = QStringList{"-P", source} + userArguments;
+    else if (language == "Arduino Files") interpreted("arduino-cli", "Arduino CLI", {"arduino-cli"}, "https://arduino.github.io/arduino-cli/latest/installation/"), plan.runArguments = QStringList{"compile", workingDirectory} + userArguments;
+    else if (language == "Batch") {
+#ifdef Q_OS_WIN
+        interpreted("cmd", "Prompt dei comandi", {"cmd.exe"}, "https://learn.microsoft.com/windows-server/administration/windows-commands/cmd");
+        plan.runArguments = QStringList{"/c", source} + userArguments;
+#endif
+    }
+
+    if (plan.toolId.isEmpty()) {
+        QMessageBox::information(this, tr("Esegui"),
+            tr("L'esecuzione automatica non è ancora configurata per %1. "
+               "Puoi selezionare manualmente un eseguibile dal menu Esegui.").arg(language));
+        return;
+    }
+    QString tool = QSettings().value("runner/languages/" + language).toString();
+    if (tool.isEmpty() || !QFileInfo(tool).isExecutable())
+        tool = resolveRunTool(plan.toolId, plan.candidates);
+    if (tool.isEmpty()) {
+        showMissingRunTool(plan.toolId, plan.displayName, plan.download);
+        return;
+    }
+    if (language == "Java" && plan.runProgram.isEmpty()) {
+        showMissingRunTool("java", "Java Runtime", QUrl("https://adoptium.net/"));
+        return;
+    }
+
+    auto *dialog = new QDialog(this);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->setWindowTitle(tr("Output esecuzione · %1").arg(QFileInfo(source).fileName()));
+    dialog->resize(820, 440);
+    auto *layout = new QVBoxLayout(dialog);
+    auto *output = new QPlainTextEdit(dialog);
+    output->setObjectName("runOutputConsole");
+    output->setReadOnly(true);
+    output->setLineWrapMode(QPlainTextEdit::NoWrap);
+    QFont consoleFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+    output->setFont(consoleFont);
+    auto *buttons = new QDialogButtonBox(QDialogButtonBox::Close, dialog);
+    auto *stop = buttons->addButton(tr("Interrompi"), QDialogButtonBox::ActionRole);
+    layout->addWidget(output); layout->addWidget(buttons);
+    auto *process = new QProcess(dialog);
+    process->setWorkingDirectory(workingDirectory);
+    process->setProcessChannelMode(QProcess::SeparateChannels);
+    runProcess_ = process; runOutput_ = output;
+    connect(buttons, &QDialogButtonBox::rejected, dialog, &QDialog::close);
+    connect(buttons, &QDialogButtonBox::accepted, dialog, &QDialog::close);
+    connect(stop, &QPushButton::clicked, this, &MainWindow::stopRunningProgram);
+    connect(dialog, &QDialog::finished, this, [this, process] {
+        if (process->state() != QProcess::NotRunning) process->kill();
+        if (runProcess_ == process) { runProcess_.clear(); runOutput_.clear(); }
+    });
+    connect(process, &QProcess::readyReadStandardOutput, dialog, [process, output] {
+        output->moveCursor(QTextCursor::End);
+        output->insertPlainText(QString::fromLocal8Bit(process->readAllStandardOutput()));
+    });
+    connect(process, &QProcess::readyReadStandardError, dialog, [process, output] {
+        output->moveCursor(QTextCursor::End);
+        output->insertPlainText(QString::fromLocal8Bit(process->readAllStandardError()));
+    });
+    connect(process, &QProcess::errorOccurred, dialog, [output](QProcess::ProcessError) {
+        output->appendPlainText(QObject::tr("\n[errore di avvio del processo]"));
+    });
+    process->setProperty("compilePhase", plan.compile);
+    process->setProperty("runProgram", plan.runProgram);
+    process->setProperty("runArguments", plan.runArguments);
+    connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), dialog,
+            [process, output, stop](int exitCode, QProcess::ExitStatus exitStatus) {
+        if (process->property("compilePhase").toBool()) {
+            process->setProperty("compilePhase", false);
+            if (exitStatus == QProcess::NormalExit && exitCode == 0) {
+                output->appendPlainText(QObject::tr("\n[compilazione completata · avvio programma]\n"));
+                process->start(process->property("runProgram").toString(),
+                               process->property("runArguments").toStringList());
+                return;
+            }
+            output->appendPlainText(QObject::tr("\n[compilazione fallita · codice %1]").arg(exitCode));
+        } else {
+            output->appendPlainText(QObject::tr("\n[processo terminato · codice %1]").arg(exitCode));
+        }
+        stop->setEnabled(false);
+    });
+    output->appendPlainText(plan.compile
+        ? tr("Compilazione di %1...\n").arg(source)
+        : tr("Esecuzione di %1...\n").arg(source));
+    dialog->show();
+    process->start(tool, plan.compile ? plan.compileArguments : plan.runArguments);
+    statusBar()->showMessage(tr("Programma avviato"), 2500);
 }
 
 void MainWindow::openDocument()
