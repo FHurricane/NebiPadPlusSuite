@@ -102,6 +102,15 @@ if(APPLE)
     set_source_files_properties(assets/NebiPad.icns PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
     target_sources(NebiPadPlus PRIVATE assets/NebiPad.icns)
     target_link_libraries(NebiPadPlus PRIVATE "-framework Speech" "-framework AVFoundation")
+    # A developer build may reuse a bundle previously processed by macdeployqt.
+    # Remove those copied Qt binaries before relinking; otherwise the new
+    # executable loads Homebrew Qt while the old Cocoa plugin loads bundled Qt.
+    add_custom_command(TARGET NebiPadPlus PRE_LINK
+        COMMAND ${CMAKE_COMMAND} -E remove_directory
+                "$<TARGET_BUNDLE_DIR:NebiPadPlus>/Contents/Frameworks"
+        COMMAND ${CMAKE_COMMAND} -E remove_directory
+                "$<TARGET_BUNDLE_DIR:NebiPadPlus>/Contents/PlugIns"
+        COMMENT "Removing stale deployed Qt libraries before relinking")
 elseif(WIN32)
     target_sources(NebiPadPlus PRIVATE assets/NebiPad.rc)
     target_include_directories(NebiPadPlus PRIVATE assets)
